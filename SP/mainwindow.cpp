@@ -383,7 +383,6 @@ void MainWindow::recvLog()
         memcpy(instead, msg4 + 2 + 74, 1);
 
 
-
         for(int i = 0; i < 74; i++)
         {
             if(PKeyC[i] == instead[0])
@@ -545,36 +544,53 @@ void MainWindow::EncryptPubC()
         qDebug()<<"[EncryptPubC]: "<<strlen(cipher4);
     }
 
-
     int cnt = 0;
-    unsigned char instead[2];
+    char instead[2];
     memset(instead, '\0', 2);
+
+    printf("%d, %d\n", instead[0], instead[1]);
+
+    for(int i = 0; i < num * 64; i++)
+    {
+        printf("[%d], ", cipher4[i]);
+    }
+    printf("\n");
+
     int Count[256] = {0};
     for(int i = 0; i < num * 64; i++)
     {
-        Count[cipher4[i]]++;
+        Count[cipher4[i] + 128]++;
     }
 
     for(int i = 0; i < 256; i++)
     {
         if(Count[i] == 0)
         {
-            instead[0] = i;
+            instead[0] = i - 128;
+            printf("\ninstead: %d\n", instead[0]);
             break;
         }
     }
 
     for(int i = 0; i < num * 64; i++)
     {
+
         if(cipher4[i] == 0)
         {
             cnt++;
             cipher4[i] = instead[0];
         }
+         printf("{%d}, ", cipher4[i]);
     }
+    printf("\n");
+
     qDebug()<<"[EncryptPubC]: "<<cnt;
-    memcpy(cipher4 + num * 64, instead, 1);
-    qDebug()<<"[EncryptPubC]: "<<strlen(cipher4);
+    qDebug()<<"[EncryptpubC]: "<<strlen(cipher4);
+    if (cnt != 0)
+    {
+        memcpy(cipher4 + num * 64, instead, 1);
+    }
+
 
 }
 
@@ -617,29 +633,41 @@ void MainWindow::hash(char in[], char out[])
 
 void MainWindow::DecryptPriS()
 {
-    len_cipher3 = len_msg4;
+    len_cipher3 = len_msg4 - 1;
     cipher3 = (char *)malloc(len_cipher3 * sizeof(char));
     memset(cipher3, '\0', len_cipher3);
-    memcpy(cipher3, msg4, len_msg4);
+    memcpy(cipher3, msg4, len_msg4 - 1);
 
     int i;
     int num2;
     num2 = len_cipher3 / 64 + 1;
+    qDebug()<<"[DecryptPriS]: "<<len_cipher3;
 
-    unsigned char instead[2];
-    memset(instead, '\0', 2);
-    memcpy(instead, cipher3 + num2 * 64 , 1);
-    qDebug()<<"[DecryptPriS]: "<<instead[0];
-
-    for(int i = 0; i < num2 * 64; i++)
+    if(len_cipher3 % 64 != 0)
     {
-        if(cipher3[i] == instead[0])
-        {
-            cipher3[i] = 0;
-        }
-     }
+        char instead[2];
+        memset(instead, '\0', 2);
+        memcpy(instead, cipher3 + (num2 - 1) * 64 , 1);
 
-    len_msg6 = len_cipher3;
+        printf("[DecryptPriS]:instead: %d\n", instead[0]);
+
+        for(int i = 0; i < (num2 - 1) * 64; i++)
+        {
+            if(cipher3[i] == instead[0])
+            {
+                cipher3[i] = 0;
+            }
+        }
+
+        for(int i = 0; i < (num2 - 1) * 64; i++)
+        {
+            printf("[%d], ", cipher3[i]);
+        }
+        printf("\d");
+
+    }
+
+    len_msg6 = len_cipher3 + 1;
     msg6 = (char *)malloc(len_msg6 * sizeof(char));
     memset(msg6, '\0', len_msg6);
 
@@ -664,7 +692,12 @@ void MainWindow::DecryptPriS()
         }
             //strcat(msg2, (char *)InBuff);
     }
-    qDebug()<<"[DecryptPris]: msg2: "<<msg6<<endl;
+    qDebug()<<"[DecryptPris]: msg6: "<<msg6<<endl;
+    for(int i = 0; i < len_msg6; i++)
+    {
+        printf("msg6[%d]%d, ", i, msg6[i]);
+    }
+    printf("\n");
 
 }
 
@@ -672,16 +705,18 @@ void MainWindow::Depacklog()
 {
     char code[3];
     memset(code, '\0', 3);
-    memcpy(code ,msg6, 2);
+    memcpy(code, msg6, 2);
 
     if(!strcmp(code, "01"))
     {
         memset(n0, '\0', 2);
+
         int len_name;
         len_name = strlen(msg6) - 2 - 1;
         memcpy(logger->username, msg6 + 2, len_name);
-        memcpy(n0, msg6 + 2 + len_name, 1);
         qDebug()<<"[Depacklog01]: "<<logger->username;
+
+        memcpy(n0, msg6 + 2 + len_name, 1);
         qDebug()<<"[Depacklog01]: "<<n0;
 
         if(!VerifyUsername())

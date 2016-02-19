@@ -78,11 +78,14 @@ private:
     char *cipher1;
     int len_cipher1;
 
+
     //SP->client :02
     char *msg4;
     int len_msg4;
     char *cipher2;
     int len_cipher2;
+
+
 };
 
 #endif // LOGDIALOG_H

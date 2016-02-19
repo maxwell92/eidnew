@@ -226,28 +226,40 @@ void logDialog::recvSP()
 
 void logDialog::DecryptPriC()
 {
-    len_cipher2 = len_msg2;
+    len_cipher2 = len_msg2 - 1;
     cipher2 = (char *)malloc(len_cipher2 * sizeof(char));
     memset(cipher2, '\0', len_cipher2);
-    memcpy(cipher2, msg2, len_msg2);
+    memcpy(cipher2, msg2, len_msg2 - 1);
 
     int i;
     int num2;
     num2 = len_cipher2 / 64 + 1;
+    qDebug()<<"[DecryptPriC]: "<<len_cipher2;
 
-    unsigned char instead[2];
-    memset(instead, '\0', 2);
-    memcpy(instead, cipher2 + num2 * 64 , 1);
-
-    for(int i = 0; i < num2 * 64; i++)
+    if(len_cipher2 % 64 != 0)
     {
-        if(cipher2[i] == instead[0])
-        {
-            cipher2[i] = 0;
-        }
-     }
+        char instead[2];
+        memset(instead, '\0', 2);
+        memcpy(instead, cipher2 + (num2 - 1) * 64 , 1);
 
-    len_msg4 = len_cipher2;
+        printf("[DecryptPriC]:instead: %d\n", instead[0]);
+
+        for(int i = 0; i < (num2 - 1) * 64; i++)
+        {
+            if(cipher2[i] == instead[0])
+            {
+                cipher2[i] = 0;
+            }
+        }
+
+        for(int i = 0; i < (num2 - 1) * 64; i++)
+        {
+            printf("[%d], ", cipher2[i]);
+        }
+        printf("\d");
+    }
+
+    len_msg4 = len_cipher2 + 1;
     msg4 = (char *)malloc(len_msg4 * sizeof(char));
     memset(msg4, '\0', len_msg4);
     qDebug()<<"[DecryptPriC]: "<<len_msg4;
@@ -275,6 +287,12 @@ void logDialog::DecryptPriC()
     }
     qDebug()<<"[DecryptPriC]: msg4: "<<msg4;
     qDebug()<<"[DecryptPriC]: "<<strlen(msg4);
+
+    for(int i = 0; i < len_msg4; i++)
+    {
+        printf("msg4[%d]%d, ", i, msg4[i]);
+    }
+    printf("\n");
 }
 
 void logDialog::Depack()
@@ -383,40 +401,56 @@ void logDialog::EncryptpubS(char code[])
             //strcat(cipher1, (char *)OutputBuff);
             memcpy(cipher1 + 64 * i, (char *)OutputBuff, 64);
             qDebug()<<"[EncryptpubS]: "<<strlen(cipher1);
-      }
+        }
         qDebug()<<"[EncryptpubS]: "<<strlen(cipher1);
 
         int cnt = 0;
-        unsigned char instead[2];
+        char instead[2];
         memset(instead, '\0', 2);
+
+        printf("%d, %d\n", instead[0], instead[1]);
+
+        for(int i = 0; i < num * 64; i++)
+        {
+            printf("[%d], ", cipher1[i]);
+        }
+        printf("\n");
 
         int Count[256] = {0};
         for(int i = 0; i < num * 64; i++)
         {
-            Count[cipher1[i]]++;
+            Count[cipher1[i] + 128]++;
         }
 
         for(int i = 0; i < 256; i++)
         {
             if(Count[i] == 0)
             {
-                instead[0] = i;
+                instead[0] = i - 128;
+                printf("\ninstead: %d\n", instead[0]);
                 break;
             }
         }
 
         for(int i = 0; i < num * 64; i++)
         {
+
             if(cipher1[i] == 0)
             {
                 cnt++;
                 cipher1[i] = instead[0];
             }
+             printf("{%d}, ", cipher1[i]);
         }
-        qDebug()<<"[EncyyptPubS]: "<<instead[0];
+        printf("\n");
+
         qDebug()<<"[EncryptPubS]: "<<cnt;
         qDebug()<<"[EncryptpubS]: "<<strlen(cipher1);
-        memcpy(cipher1 + num * 64, instead, 1);
+        if (cnt != 0)
+        {
+            memcpy(cipher1 + num * 64, instead, 1);
+        }
+
 
 
 

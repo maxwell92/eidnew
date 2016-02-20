@@ -20,8 +20,6 @@ logDialog::logDialog(QWidget *parent) :
     logSocket = new QTcpSocket(this);
     connect(logSocket, SIGNAL(readyRead()), this, SLOT(recvSP()));
 
-
-
 }
 
 logDialog::~logDialog()
@@ -73,21 +71,17 @@ void logDialog::CreateLogger(QString username, QString skey)
 void logDialog::rsaKey()
 {
     privateKey = RSA_generate_key(512, RSA_F4, NULL, NULL);
-
-
-//    unsigned char PublicKey[512];
     unsigned char *PKey = PublicKey;
-
 
     int publicKeyLen = i2d_RSAPublicKey(privateKey, &PKey);
 
     qDebug()<<"[rsaKey]: "<<publicKeyLen;
 
-    for(int i = 0; i < publicKeyLen; i++)
-    {
-        printf("%d, ", PublicKey[i]);
-    }
-    printf("\n");
+//    for(int i = 0; i < publicKeyLen; i++)
+//    {
+//        printf("%d, ", PublicKey[i]);
+//    }
+//    printf("\n");
 
     PKey = PublicKey;
     publicKey = d2i_RSAPublicKey(NULL, (const unsigned char**)&PKey, publicKeyLen);
@@ -131,10 +125,8 @@ void logDialog::Enpack(char code[])
             cnt++;
             PublicKey[i] = instead[0];
         }
-//        printf("%d, ", PublicKey[i]);
     }
-    printf("\n");
-    //qDebug()<<"[Enpack]: "<<strlen((char *)PublicKey);
+
 
     int len_msg1 = 2 + 74 + 1 + 1;
     msg1 = (char *)malloc(len_msg1 * sizeof(char));
@@ -173,12 +165,13 @@ void logDialog::recvSP()
 
     qDebug()<<"[recvSP]: "<<rsaInfo1.length();
 
-    len_msg2 = rsaInfo1.length() + 1;
-    msg2 = (char *)malloc(len_msg2 * sizeof(char));
-    memset(msg2, '\0', len_msg2);
-
-    strcpy(msg2, b.data());
-    qDebug()<<"[recvSP]: "<<msg2;
+    len_msg2 = 0;
+    memset(msg2, '\0', 256);
+    len_msg2 = rsaInfo1.length();
+    memcpy(msg2, b.data(), len_msg2);
+//    msg2 = (char *)malloc(len_msg2 * sizeof(char));
+//  strcpy(msg2, b.data());
+//    qDebug()<<"[recvSP]: "<<msg2;
 
     char code[3];
     memset(code, '\0', 3);
@@ -226,51 +219,60 @@ void logDialog::recvSP()
 
 void logDialog::DecryptPriC()
 {
-    len_cipher2 = len_msg2 - 1;
-    cipher2 = (char *)malloc(len_cipher2 * sizeof(char));
-    memset(cipher2, '\0', len_cipher2);
-    memcpy(cipher2, msg2, len_msg2 - 1);
+    len_cipher2 = 0;
+    memset(cipher2, '\0', 256);
+    len_cipher2 = len_msg2;
+    memcpy(cipher2, msg2, len_cipher2);
+    qDebug()<<"[DecryptPriC]: "<<len_cipher2;
+//    qDebug()<<"[DecryptPriC]: "<<cipher2;
 
     int i;
     int num2;
-    num2 = len_cipher2 / 64 + 1;
-    qDebug()<<"[DecryptPriC]: "<<len_cipher2;
+    num2 = len_cipher2 / 64;
+
 
     if(len_cipher2 % 64 != 0)
     {
         char instead[2];
         memset(instead, '\0', 2);
-        memcpy(instead, cipher2 + (num2 - 1) * 64 , 1);
+        memcpy(instead, cipher2 + (num2) * 64 , 1);
 
         printf("[DecryptPriC]:instead: %d\n", instead[0]);
-
-        for(int i = 0; i < (num2 - 1) * 64; i++)
+        int cnt = 0;
+        for(int i = 0; i < (num2) * 64; i++)
         {
             if(cipher2[i] == instead[0])
             {
                 cipher2[i] = 0;
+                cnt++;
+                printf("%d, ", i);
             }
-        }
 
-        for(int i = 0; i < (num2 - 1) * 64; i++)
-        {
-            printf("[%d], ", cipher2[i]);
         }
-        printf("\d");
+        printf("\n%d\n", cnt);
+
+//        for(int i = 0; i < (num2 - 1) * 64; i++)
+//        {
+//            printf("[%d], ", cipher2[i]);
+//        }
+//        printf("\d");
     }
 
-    len_msg4 = len_cipher2 + 1;
-    msg4 = (char *)malloc(len_msg4 * sizeof(char));
-    memset(msg4, '\0', len_msg4);
+    len_msg4 = 0;
+    memset(msg4, '\0', 256);
+    len_msg4 = len_cipher2 - 1;
+
+//    msg4 = (char *)malloc(len_msg4 * sizeof(char));
+//    memset(msg4, '\0', len_msg4);
     qDebug()<<"[DecryptPriC]: "<<len_msg4;
 
 
-    //num2 = len_cipher2 / 64;
     unsigned char InBuff[64], OutBuff[64];
     for(i = 0; i < num2; i++) {
         memset((char *)InBuff, '\0', 64);
         memset((char *)OutBuff, '\0', 64);
-        strcpy((char *)OutBuff, cipher2 + 64 * i);
+//        strcpy((char *)OutBuff, cipher2 + 64 * i);
+        memcpy((char *)OutBuff, cipher2 + 64 * i, 64);
         qDebug()<<"[DecryptPriC]: OutBuff["<<i<<"]: "<<OutBuff<<endl;
         qDebug()<<"[DecryptPriC]: OutBuff["<<i<<"]: "<<strlen((char *)OutBuff)<<endl;
         int plen = 0;
@@ -278,31 +280,34 @@ void logDialog::DecryptPriC()
         qDebug()<<"[DecryptPriC]: InBuff["<<i<<"]: "<<InBuff<<endl;
         qDebug()<<"[DecryptPriC]: InBuff["<<i<<"]: "<<plen<<endl;
 
-        if(i == (num2 - 1)) {
-            memcpy(msg4 + i * 50, (char *)InBuff, len_msg4 % 64);
-        }else {
-            memcpy(msg4 + i * 50, (char *)InBuff, 64);
-        }
+        memcpy(msg4 + i * 50, (char *)InBuff, 50);
+
+//        if(i == (num2 - 1)) {
+//            memcpy(msg4 + i * 50, (char *)InBuff, len_msg4 % 64);
+//        }else {
+//            memcpy(msg4 + i * 50, (char *)InBuff, 64);
+//        }
             //strcat(msg2, (char *)InBuff);
     }
     qDebug()<<"[DecryptPriC]: msg4: "<<msg4;
     qDebug()<<"[DecryptPriC]: "<<strlen(msg4);
-
-    for(int i = 0; i < len_msg4; i++)
-    {
-        printf("msg4[%d]%d, ", i, msg4[i]);
-    }
-    printf("\n");
 }
+//    for(int i = 0; i < len_msg4; i++)
+//    {
+//        printf("msg4[%d]%d, ", i, msg4[i]);
+//    }
+//    printf("\n");
+
 
 void logDialog::Depack()
 {
-//    char code[3];
-//    memset(code, '\0', 3);
-//    qDebug()<<"[Depack]";
-//    memcpy(code, msg4, 2);
-//    qDebug()<<"[Depack]: "<<code;
-    char code[]="02";
+    qDebug()<<"[Depack]: "<<msg4;
+
+    char code[3];
+    memset(code, '\0', 3);
+    memcpy(code, msg4, 2);
+    qDebug()<<"[Depack]: "<<code;
+//    char code[]="02";
     if(!strcmp(code, "02"))
     {
         char uname[21];
@@ -323,20 +328,20 @@ void logDialog::Depack()
         memcpy(idlist, msg4 + 2 + 8 + 32, 4);
         qDebug()<<"[Depack02]: "<<idlist;
 
-        len_uname = strlen(msg4) - 2 - 8 - 32 - 4 - 19 - 32;
-        memcpy(uname, msg4 + 2 + 8 + 32, len_uname);
+//        len_uname = strlen(msg4) - 2 - 8 - 32 - 4 - 19 - 32;
+        len_uname = strlen(msg4) - 2 - 8 - 32 - 4 - 19 - 19;
+
+        memcpy(uname, msg4 + 2 + 8 + 32 + 4, len_uname);
         qDebug()<<"[Depack02]: "<<uname;
 
         memcpy(logger->ti, msg4 + 2 + 8 + 32 + 4 + len_uname, 19);
         qDebug()<<"[Depack02]: "<<logger->ti;
 
-        memcpy(logger->m1 ,msg4 + 2 + 8 + 32 + 4 + len_uname + 19, 32);
-        qDebug()<<"[Depack02]: "<<logger->m1;
+        memcpy(logger->tm, msg4 + 2 + 8 + 32 + 4 + len_uname + 19, 19);
+        qDebug()<<"[Depack02]: "<<logger->tm;
 
-
-
-
-
+//        memcpy(logger->m1 ,msg4 + 2 + 8 + 32 + 4 + len_uname + 19, 32);
+//        qDebug()<<"[Depack02]: "<<logger->m1;
 
 
     }
@@ -439,10 +444,11 @@ void logDialog::EncryptpubS(char code[])
             {
                 cnt++;
                 cipher1[i] = instead[0];
+                printf("%d, ", i);
             }
-             printf("{%d}, ", cipher1[i]);
+ //            printf("{%d}, ", cipher1[i]);
         }
-        printf("\n");
+        printf("\n%d\n", cnt);
 
         qDebug()<<"[EncryptPubS]: "<<cnt;
         qDebug()<<"[EncryptpubS]: "<<strlen(cipher1);

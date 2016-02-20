@@ -87,7 +87,8 @@ private:
     int len_msg3;
 
     //pubC
-    char *msg4;
+//    char *msg4;
+    char msg4[256];
     int len_msg4;
 
     //pubS
@@ -95,9 +96,11 @@ private:
     int len_msg5;
 
     //client->sp code:01
-    char *cipher3;
+//    char *cipher3;
+    char cipher3[256];
     int len_cipher3;
-    char *msg6;
+//    char *msg6;
+    char msg6[256];
     int len_msg6;
 
     char n0[2];

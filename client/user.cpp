@@ -20,6 +20,10 @@ user::user()
     ti = (char *)malloc(len_ti * sizeof(char));
     memset(ti, '\0', len_ti);
 
+    len_tm = 20; //yyyy:MM:dd:hh:mm:ss
+    tm = (char *)malloc(len_tm * sizeof(char));
+    memset(tm, '\0', len_tm);
+
     len_m = 33;
     m = (char *)malloc(len_m * sizeof(char));
     memset(m, '\0', len_m);

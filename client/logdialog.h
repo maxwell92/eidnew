@@ -63,7 +63,8 @@ private:
     char *msg1;    //rsa pubkey exchange and verify username
     int len_msg1;
 
-    char *msg2;     //recv pubkey
+//    char *msg2;     //recv pubkey
+    char msg2[256];
     int len_msg2;
 
     char n0[2];
@@ -80,12 +81,14 @@ private:
 
 
     //SP->client :02
-    char *msg4;
+//    char *msg4;
+//    int len_msg4;
+//    char *cipher2;
+//    int len_cipher2;
+    char msg4[256];
     int len_msg4;
-    char *cipher2;
+    char cipher2[256];
     int len_cipher2;
-
-
 };
 
 #endif // LOGDIALOG_H

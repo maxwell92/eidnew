@@ -18,6 +18,8 @@ public:
 //    int len_guit;
     char *ti;
     int len_ti;
+    char *tm;
+    int len_tm;
     char *m;
     int len_m;
     char *m1;

@@ -59,14 +59,19 @@ private:
     char *cipher1;
     int len_cipher1;
 
-    char *cipher2;
+//    char *cipher2;
+    char cipher2[256];
     int len_cipher2;
-    char *msg2;
+//    char *msg2;
+    char msg2[256];
     int len_msg2;
 
-    char *cipher3;
+
+//    char *cipher3;
+    char cipher3[256];
     int len_cipher3;
-    char *msg3;
+//    char *msg3;
+    char msg3[256];
     int len_msg3;
 };
 

@@ -46,6 +46,12 @@ public:
     void logEnpack(char code[]);
     void EncryptPubC();
     void sendIdlist();
+    void getK1();
+    void gety1();
+    void DecryptK1();
+
+    void DecrypteidPriS();
+    void sendCli();
     
 
 protected:
@@ -62,6 +68,9 @@ private:
     QTcpServer *logServer;
     QTcpSocket *logSocket;
 
+    QTcpServer *eidServer;
+    QTcpSocket *eidSocket;
+
     RSA *publicKey;
     RSA *privateKey;
     unsigned char PublicKey[512];
@@ -70,15 +79,19 @@ private:
     unsigned char PKeyC[512]; //use to make pubC;
 
     //client->sp code:01
-    char *cipher1;
+//    char *cipher1;
+    char cipher1[256];
     int len_cipher1;
-    char *msg1;
+//    char *msg1;
+    char msg1[256];
     int len_msg1;
 
     //sp->client code:02
-    char *cipher2;
+  //  char *cipher2;
+    char cipher2[256];
     int len_cipher2;
-    char *msg2;
+//    char *msg2;
+    char msg2[256];
     int len_msg2;
 
     //client->sp code:03
@@ -107,6 +120,7 @@ private:
     char n1[2];
     char n2[2];
     char hn1[33];
+    char hn2[33];
     char idlist[5];
 
     //sp->client code:02
@@ -115,12 +129,25 @@ private:
     char *msg7;
     int len_msg7;
 
+    char cipher5[256];
+    int len_cipher5;
+    char msg8[256];
+    int len_msg8;
+
+    char cipher6[256];
+    int len_cipher6;
+    char msg9[256];
+    int len_msg9;
+
 private slots:
     void newReg();
     void recvReg();
 
     void newLog();
     void recvLog();
+
+    void newEid();
+    void recvEid();
 };
 
 #endif // MAINWINDOW_H

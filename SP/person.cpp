@@ -37,4 +37,8 @@ person::person()
     len_y0 = 33;
     y0 = (char *)malloc(len_y0 * sizeof(char));
     memset(y0, '\0', len_y0);
+
+    len_y1 = 33;
+    y1 = (char *)malloc(len_y1 * sizeof(char));
+    memset(y1, '\0', len_y1);
 }

@@ -41,8 +41,19 @@ private slots:
     void sendLog(char code[]);
     void DecryptPriC();
     void Depack();
-    void fillLogger();
+
     void dealIdlist();
+    void getXor();
+    void getN2();
+    void gety1();
+    void EncryptK1(char code[]);
+    void hash(char in[], char out[]);
+    void getMfromUsername(char *username);
+    void connecteIDclient();
+    void sendeID();
+
+    void recveID();
+
 
 signals:
     void showReg();
@@ -53,6 +64,7 @@ private:
 
     user *logger;
     QTcpSocket *logSocket;
+    QTcpSocket *eidSocket;
     RSA *privateKey;  //priC
     RSA *publicKey;   //pubC
     unsigned char PublicKey[512];
@@ -71,6 +83,7 @@ private:
     char n1[2];
     char n2[2];
     char hn1[33];
+    char hn2[33];
     char idlist[5];
 
     //client->SP :01
@@ -89,6 +102,12 @@ private:
     int len_msg4;
     char cipher2[256];
     int len_cipher2;
+
+    //client->SP :03
+    char msg5[256];
+    int len_msg5;
+    char cipher3[256];
+    int len_cipher3;
 };
 
 #endif // LOGDIALOG_H

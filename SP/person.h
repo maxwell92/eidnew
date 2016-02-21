@@ -24,6 +24,10 @@ public:
     int len_m1;
     char *y0;
     int len_y0;
+    char *y1;
+    int len_y1;
+
+    char k1[32];
 };
 
 #endif // PERSON_H

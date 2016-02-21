@@ -176,14 +176,17 @@ void regDialog::acceptSP()
     b = spInfo1.toLatin1();
 
     //len_cipher2 = (spInfo1.length() / 16 + 1) * 16;
+    len_cipher2 = 0;
+    memset(cipher2, '\0', 256);
     len_cipher2 = spInfo1.length();
     qDebug()<<"[acceptSP]: "<<len_cipher2;
 
 
-    cipher2 = (char *)malloc(len_cipher2 * sizeof(char));
-    memset(cipher2, '\0', len_cipher2);
+//    cipher2 = (char *)malloc(len_cipher2 * sizeof(char));
+//    memset(cipher2, '\0', len_cipher2);
 
-    strcpy(cipher2, b.data());
+//    strcpy(cipher2, b.data());
+    memcpy(cipher2, b.data(), len_cipher2);
     qDebug()<<"[acceptSP]: "<<cipher2;
 
     if(!strcmp(cipher2, "existed"))
@@ -193,8 +196,9 @@ void regDialog::acceptSP()
     {
         QMessageBox::about(this, "Attention!", "Registed Success!");
         client->close();
-        this->hide();
+
         emit(showLog());
+        this->hide();
     }else {
         DecryptK0();
         Depack();
@@ -221,10 +225,11 @@ void regDialog::Encrypt1K0()
 
     memcpy(plain, msg3, strlen(msg3));
 
-
+    len_cipher3 = 0;
     len_cipher3 = (len_plain / 16 + 1) * 16;
-    cipher3 = (char *)malloc(len_cipher3 * sizeof(char));
-    memset(cipher3, '\0', len_cipher3);
+//    cipher3 = (char *)malloc(len_cipher3 * sizeof(char));
+//    memset(cipher3, '\0', len_cipher3);
+    memset(cipher3, '\0', 256);
 
     unsigned char Seed[32];
     strcpy((char *)Seed, "AbCdEfGhIjKlMnOpQrStUvWxYz12345");
@@ -266,7 +271,7 @@ void regDialog::caly0()
     memcpy(sekey, skey.toLatin1().data(), len_sekey);  //p
 
     int round;
-    round = tmpUser->m[0] % 10 + 2;  //round is [2..11];
+    round = tmpUser->m[0] % 10 + 20;  //round is [20..29];
     qDebug()<<"[caly0]: "<<round;
 
     char in[50], out[50];
@@ -278,13 +283,16 @@ void regDialog::caly0()
         memset(out, '\0', 50);
         hash(in,out);
         memcpy(in, out, 50);
+
     }
 
     qDebug()<<"[caly0]: "<<in;
 
+
     int len_msg3 = 2 + 32 + 2;
-    msg3 = (char *)malloc(len_msg3 * sizeof(char));
-    memset(msg3, '\0', len_msg3);
+//    msg3 = (char *)malloc(len_msg3 * sizeof(char));
+//    memset(msg3, '\0', len_msg3);
+    memset(msg3, '\0', 256);
     memcpy(msg3 + 2, in, 32);
     qDebug()<<"[caly0]: "<<msg3 + 2;
     qDebug()<<"[caly0]: "<<len_msg3;
@@ -351,9 +359,11 @@ void regDialog::DecryptK0()
              }
     }
 
+    len_msg2 = 0;
+    memset(msg2, '\0', 256);
     len_msg2 = strlen(plain);
-    msg2 = (char *)malloc(len_msg2 * sizeof(char));
-    memset(msg2, '\0', len_msg2);
+//    msg2 = (char *)malloc(len_msg2 * sizeof(char));
+//    memset(msg2, '\0', len_msg2);
     memcpy(msg2, plain, len_plain);
     qDebug()<<"[DecryptK0]: "<<msg2;
 }

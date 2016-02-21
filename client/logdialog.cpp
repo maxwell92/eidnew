@@ -7,6 +7,8 @@
 #include "QHostAddress"
 #include "QMessageBox"
 #include <QDateTime>
+#include "openssl/md5.h"
+#include "openssl/aes.h"
 
 
 logDialog::logDialog(QWidget *parent) :
@@ -20,6 +22,8 @@ logDialog::logDialog(QWidget *parent) :
     logSocket = new QTcpSocket(this);
     connect(logSocket, SIGNAL(readyRead()), this, SLOT(recvSP()));
 
+    eidSocket = new QTcpSocket(this);
+    connect(eidSocket, SIGNAL(readyRead()), this, SLOT(recveID()));
 }
 
 logDialog::~logDialog()
@@ -39,6 +43,10 @@ void logDialog::changeEvent(QEvent *e)
     }
 }
 
+void logDialog::recveID()
+{
+
+}
 
 
 void logDialog::on_LoginBtn_clicked()
@@ -212,9 +220,184 @@ void logDialog::recvSP()
     } else {
         DecryptPriC();
         Depack();
-        fillLogger();
+
+        getXor();
+        getN2();
+        gety1();
+        Enpacklog("03");
+        EncryptK1("03");
+        sendLog("03");
         dealIdlist();
+        connecteIDclient();
+        sendeID();
     }
+}
+
+void logDialog::connecteIDclient()
+{
+    eidSocket->connectToHost(QHostAddress::LocalHost, 13500);
+
+}
+
+void logDialog::sendeID()
+{
+    QString eidInfo1;
+    eidInfo1 = QString(QLatin1String(hn2));
+    if(eidSocket->write(eidInfo1.toLatin1(), eidInfo1.length()) != eidInfo1.length())
+    {
+        qDebug()<<"[sendeID]: "<<"error";
+    }
+    qDebug()<<"[sendeID]: "<<eidInfo1;
+    qDebug()<<"[sendeID]: "<<eidInfo1.length();
+}
+
+void logDialog::getMfromUsername(char *username)
+{
+    char buf[33] = {'\0'};
+    char tmp[3] = {'\0'};
+    unsigned char md[16];
+
+    MD5_CTX ctx;
+    MD5_Init(&ctx);
+    MD5_Update(&ctx, username, strlen(username));
+    MD5_Final(md, &ctx);
+
+    for(int i = 0; i < 16; i++ )
+    {
+        sprintf(tmp, "%2.2x", md[i]);
+        strcat(buf, tmp);
+    }
+
+
+    strcpy(logger->m, buf);
+}
+
+void logDialog::getXor()
+{
+
+    getMfromUsername(logger->username);
+    memset(logger->k1, '\0', 32);
+    for(int i = 0; i < 32; i++)
+    {
+        logger->k1[i] = logger->m[i] ^ logger->m1[i];
+    }
+    qDebug()<<"[getXor]: "<<logger->k1;
+
+}
+
+void logDialog::hash(char in[], char out[])
+{
+    char buf[33] = {'\0'};
+    char tmp[3] = {'\0'};
+    unsigned char md[16];
+
+    QString str;
+    QByteArray b;
+    b = str.toLatin1();
+
+    MD5_CTX ctx;
+    MD5_Init(&ctx);
+    MD5_Update(&ctx, in, strlen(in));
+    MD5_Final(md, &ctx);
+
+    for(int i = 0; i < 16; i++ )
+    {
+        sprintf(tmp, "%2.2x", md[i]);
+        strcat(buf, tmp);
+    }
+
+    strcpy(out, buf);
+}
+
+void logDialog::getN2()
+{
+    memset(n2, '\0', 2);
+    n2[0] = n0[0] + 2;
+    memset(hn1, '\0', 32);
+    hash(n2, hn2);
+
+}
+
+void logDialog::gety1()
+{
+    char *sekey;
+    int len_sekey;
+    len_sekey = strlen(logger->skey);
+    sekey = (char *)malloc(len_sekey * sizeof(char));
+    memset(sekey, '\0', len_sekey);
+
+    //memcpy(sekey, skey.toLatin1().data(), len_sekey);  //p
+    memcpy(sekey, logger->skey, strlen(logger->skey));
+
+    int round;
+    round = logger->m[0] % 10 + 20; //round is [20..29];
+    qDebug()<<"[gety1]: "<<round;
+
+    char in[50], out[50];
+    memcpy(in, sekey, len_sekey);
+    memcpy(in + len_sekey, logger->ti, 19);
+
+    for(int i = 0; i < round - 2; i++ )  //m-1
+    {
+        memset(out, '\0', 50);
+        hash(in,out);
+        memcpy(in, out, 50);
+    }
+
+    memcpy(logger->y1, in, 32);
+    qDebug()<<"[gety1]: "<<logger->y1;
+
+}
+
+void logDialog::EncryptK1(char code[])
+{
+    unsigned char InBuff[16], OutBuff[16];
+
+    char *plain;
+    int len_plain;
+    len_plain = strlen(msg5);
+    plain = (char *)malloc(len_plain * sizeof(char));
+    memset(plain, '\0', len_plain);
+
+    memcpy(plain, msg5, strlen(msg5));
+
+
+    len_cipher3 = 0;
+    memset(cipher3, '\0', 256);
+    len_cipher3 = (len_plain / 16 + 1) * 16;
+
+    unsigned char Seed[32];
+    //strcpy((char *)Seed, "AbCdEfGhIjKlMnOpQrStUvWxYz12345");
+    memcpy((char *)Seed, logger->k1, 32);
+
+    AES_KEY AESEncryptKey, AESDecryptKey;
+    AES_set_encrypt_key(Seed, 256, &AESEncryptKey);
+    AES_set_decrypt_key(Seed, 256, &AESDecryptKey);
+
+
+    int i;
+    int num1;
+    num1 = len_plain / 16 + 1;
+
+    len_cipher3 = 0;
+    memset(cipher3, '\0', 256);
+    len_cipher3 = num1 * 16;
+
+    for(i = 0; i < num1; i++) {
+        memset((char *)InBuff, '\0', 16);
+        memset((char *)OutBuff, '\0', 16);
+
+        if (i == (num1 - 1)) {
+            memcpy((char *)InBuff, plain + 16 * i, len_plain % 16);
+        } else {
+            memcpy((char *)InBuff, plain + 16 * i, 16);
+        }
+
+        AES_ecb_encrypt(InBuff, OutBuff, &AESEncryptKey, AES_ENCRYPT);
+        memcpy(cipher3 + 16 * i, (char *)OutBuff, 16);
+    }
+
+
 }
 
 void logDialog::DecryptPriC()
@@ -328,8 +511,8 @@ void logDialog::Depack()
         memcpy(idlist, msg4 + 2 + 8 + 32, 4);
         qDebug()<<"[Depack02]: "<<idlist;
 
-//        len_uname = strlen(msg4) - 2 - 8 - 32 - 4 - 19 - 32;
-        len_uname = strlen(msg4) - 2 - 8 - 32 - 4 - 19 - 19;
+        len_uname = strlen(msg4) - 2 - 8 - 32 - 4 - 19 - 32;
+//        len_uname = strlen(msg4) - 2 - 8 - 32 - 4 - 19 - 19;
 
         memcpy(uname, msg4 + 2 + 8 + 32 + 4, len_uname);
         qDebug()<<"[Depack02]: "<<uname;
@@ -337,24 +520,53 @@ void logDialog::Depack()
         memcpy(logger->ti, msg4 + 2 + 8 + 32 + 4 + len_uname, 19);
         qDebug()<<"[Depack02]: "<<logger->ti;
 
-        memcpy(logger->tm, msg4 + 2 + 8 + 32 + 4 + len_uname + 19, 19);
-        qDebug()<<"[Depack02]: "<<logger->tm;
+//        memcpy(logger->tm, msg4 + 2 + 8 + 32 + 4 + len_uname + 19, 19);
+//        qDebug()<<"[Depack02]: "<<logger->tm;
 
-//        memcpy(logger->m1 ,msg4 + 2 + 8 + 32 + 4 + len_uname + 19, 32);
-//        qDebug()<<"[Depack02]: "<<logger->m1;
+        memcpy(logger->m1 ,msg4 + 2 + 8 + 32 + 4 + len_uname + 19, 32);
+        qDebug()<<"[Depack02]: "<<logger->m1;
+
+
 
 
     }
 }
 
-void logDialog::fillLogger()
-{
 
-
-}
 
 void logDialog::dealIdlist()
 {
+    char idInfo[8][20] = {0};
+    strcpy(idInfo[0], "teleNumber,");
+    strcpy(idInfo[1], "realName,");
+    strcpy(idInfo[2], "age,");
+    strcpy(idInfo[3], "company,");
+    strcpy(idInfo[4], "gender,");
+    strcpy(idInfo[5], "address,");
+    strcpy(idInfo[6], "city,");
+    strcpy(idInfo[7], "idNumber,");
+
+    char msg[128];
+    memset(msg, '\0', 128);
+
+    for(int i = 0; i < strlen(idlist); i++)
+    {
+        memcpy(msg + strlen(msg), idInfo[idlist[i] - '0'], strlen(idInfo[idlist[i] - '0']));
+    }
+   // strcat(msg, "\nEnsure eIDClient is running!");
+
+    QString ndMsg;
+    ndMsg = QString(QLatin1String(msg));
+
+    QString noMsg;
+    char msgt[128];
+    memset(msgt, '\0', 128);
+    strcpy(msgt, "Ensure eIDClient is running!");
+    noMsg = QString(QLatin1String(msgt));
+
+    QMessageBox::about(this, "Attention!", noMsg);
+    QMessageBox::about(this, "Tips", ndMsg);
+
 
 }
 
@@ -371,6 +583,18 @@ void logDialog::Enpacklog(char code[])
         memcpy(msg3 + 2 + strlen(logger->username), n0, 1);
         qDebug()<<"[Enpacklog01]: "<<msg3;
         qDebug()<<"[Enpacklog01]: "<<strlen(msg3);
+    }
+    if(!strcmp(code, "03"))
+    {
+        len_msg5 = 0;
+        memset(msg5, '\0', 256);
+        len_msg5 = 2 + 32 + 32;
+        memcpy(msg5, code, 2);
+        memcpy(msg5 + 2, hn2, 32);
+        memcpy(msg5 + 2 + 32, logger->y1, 32);
+        qDebug()<<"[Enpacklog03]: "<<msg5;
+        qDebug()<<"[Enpacklog03]: "<<strlen(msg5);
+
     }
 }
 
@@ -480,6 +704,15 @@ void logDialog::sendLog(char code[])
             qDebug()<<"[sendLog01]: "<<"error";
         }
         qDebug()<<"[sendLog01]: "<<logInfo1.length();
+    }
+    if(!strcmp(code, "03"))
+    {
+        logInfo1 = QString(QLatin1String(cipher3));
+        if(logSocket->write(logInfo1.toLatin1(), logInfo1.length()) != logInfo1.length())
+        {
+            qDebug()<<"[sendLog03]: "<<"error";
+        }
+        qDebug()<<"[sendLog03]: "<<logInfo1.length();
     }
 
 }

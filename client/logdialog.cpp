@@ -217,7 +217,11 @@ void logDialog::recvSP()
         {
             QMessageBox::about(this, "Attention", "Username Not Exists!");
         }
-    } else {
+    } else if(!strcmp(code, "88")) //succ
+    {
+        emit(showMain());
+        this->hide();
+    }else {
         DecryptPriC();
         Depack();
 
@@ -280,6 +284,7 @@ void logDialog::getXor()
     for(int i = 0; i < 32; i++)
     {
         logger->k1[i] = logger->m[i] ^ logger->m1[i];
+        printf("%d, ", logger->k1[i]);
     }
     qDebug()<<"[getXor]: "<<logger->k1;
 

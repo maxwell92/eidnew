@@ -44,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     someone = new people();
 
+
 }
 
 MainWindow::~MainWindow()
@@ -94,7 +95,7 @@ void MainWindow::recvSP()
 
     if(!strcmp(code, "00"))
     {
-        memcpy((char *)PkeyS, msg2 + 2, 74);
+        memcpy((char *)PkeyS, msg3 + 2, 74);
         unsigned char insd[2];
         memset(insd, '\0', 2);
         memcpy(insd, msg3 + 2 + 74, 1);
@@ -109,6 +110,10 @@ void MainWindow::recvSP()
         }
         printf("\n");
         makePubS();
+        Enpack();
+        EncryptPubS("03");
+
+        sendSP();
     }
 }
 
@@ -150,12 +155,13 @@ void MainWindow::recvCli()
         Depack();
         if(Verify())
         {
+//
             connectSP();
             getPubS();
-            Enpack();
-            EncryptPubS("03");
+//            Enpack();
+//            EncryptPubS("03");
 
-            sendSP();
+//            sendSP();
         }
     }
 

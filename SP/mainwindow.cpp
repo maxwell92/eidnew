@@ -102,7 +102,7 @@ void MainWindow::newLog()
 void MainWindow::newEid()
 {
     eidSocket = eidServer->nextPendingConnection();
-    connect(eidSocket, SIGNAL(readyRead()), this, SLOT(newEid()));
+    connect(eidSocket, SIGNAL(readyRead()), this, SLOT(recvEid()));
     connect(eidSocket, SIGNAL(disconnected()), eidSocket, SLOT(deleteLater()));
 }
 
@@ -112,9 +112,15 @@ void MainWindow::recvEid()
     char code[3];
     memset(code, '\0', 3);
     memcpy(code, eidInfo1.toLatin1().data(), 2);
+    qDebug()<<"[recvEid]: "<<code;
 
     if(!strcmp(code, "01"))
     {
+        for(int i = 0; i < strlen(msg5); i++)
+        {
+            printf("[%d]%d, ", i, msg5[i]);
+        }
+        printf("\n");
         QString pkInfo;
         pkInfo = QString(QLatin1String(msg5));
         if(eidSocket->write(pkInfo.toLatin1(), pkInfo.length()) != pkInfo.length())
@@ -127,10 +133,11 @@ void MainWindow::recvEid()
         memset(cipher6, '\0', 256);
         len_cipher6 = eidInfo1.length();
         memcpy(cipher6, eidInfo1.toLatin1().data(), eidInfo1.length());
+
+        DecrypteidPriS();
+        sendCli();
     }
 
-    DecrypteidPriS();
-    sendCli();
 }
 
 void MainWindow::DecrypteidPriS()
@@ -218,6 +225,13 @@ void MainWindow::sendCli()
     if(!strcmp(hn2tmp, hn2) && !strcmp(ack, "y"))
     {
         qDebug()<<"[sendCli]: "<<"succ";
+        char succ[] = "88";
+        QString succInfo;
+        succInfo = QString(QLatin1String(succ));
+        if(logSocket->write(succInfo.toLatin1(), succInfo.length()))
+        {
+            qDebug()<<"[sendCli]: "<<"error";
+        }
         //logSocket->write();
     }
 }
@@ -570,6 +584,7 @@ void MainWindow::getK1()
 
 void MainWindow::gety1()
 {
+    memset(hn2, '\0', 33);
     memcpy(hn2, msg8 + 2, 32);
     //memcpy(logger->y1, msg8 + 2 + 32, 32);
     char y1[33];

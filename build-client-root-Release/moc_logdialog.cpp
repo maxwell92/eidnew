@@ -22,7 +22,7 @@ static const uint qt_meta_data_logDialog[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      20,   14, // methods
+      28,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -52,6 +52,14 @@ static const uint qt_meta_data_logDialog[] = {
      282,   10,   10,   10, 0x08,
      291,   10,   10,   10, 0x08,
      304,   10,   10,   10, 0x08,
+     313,   10,   10,   10, 0x08,
+     321,   10,   10,   10, 0x08,
+     329,  153,   10,   10, 0x08,
+     354,  347,   10,   10, 0x08,
+     383,  374,   10,   10, 0x08,
+     407,   10,   10,   10, 0x08,
+     426,   10,   10,   10, 0x08,
+     436,   10,   10,   10, 0x08,
 
        0        // eod
 };
@@ -65,7 +73,10 @@ static const char qt_meta_stringdata_logDialog[] = {
     "connectSP()\0sendRSA()\0makePubS()\0"
     "Enpacklog(char[])\0getN0()\0EncryptpubS(char[])\0"
     "sendLog(char[])\0DecryptPriC()\0Depack()\0"
-    "fillLogger()\0dealIdlist()\0"
+    "dealIdlist()\0getXor()\0getN2()\0gety1()\0"
+    "EncryptK1(char[])\0in,out\0hash(char[],char[])\0"
+    "username\0getMfromUsername(char*)\0"
+    "connecteIDclient()\0sendeID()\0recveID()\0"
 };
 
 void logDialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -92,8 +103,16 @@ void logDialog::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
         case 15: _t->sendLog((*reinterpret_cast< char(*)[]>(_a[1]))); break;
         case 16: _t->DecryptPriC(); break;
         case 17: _t->Depack(); break;
-        case 18: _t->fillLogger(); break;
-        case 19: _t->dealIdlist(); break;
+        case 18: _t->dealIdlist(); break;
+        case 19: _t->getXor(); break;
+        case 20: _t->getN2(); break;
+        case 21: _t->gety1(); break;
+        case 22: _t->EncryptK1((*reinterpret_cast< char(*)[]>(_a[1]))); break;
+        case 23: _t->hash((*reinterpret_cast< char(*)[]>(_a[1])),(*reinterpret_cast< char(*)[]>(_a[2]))); break;
+        case 24: _t->getMfromUsername((*reinterpret_cast< char*(*)>(_a[1]))); break;
+        case 25: _t->connecteIDclient(); break;
+        case 26: _t->sendeID(); break;
+        case 27: _t->recveID(); break;
         default: ;
         }
     }
@@ -131,9 +150,9 @@ int logDialog::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 20)
+        if (_id < 28)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 20;
+        _id -= 28;
     }
     return _id;
 }

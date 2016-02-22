@@ -6,7 +6,7 @@
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
 
-#include "../SP/mainwindow.h"
+#include "../eidClient/mainwindow.h"
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'mainwindow.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 63
@@ -31,18 +31,19 @@ static const uint qt_meta_data_MainWindow[] = {
 
  // slots: signature, parameters, type, tag, flags
       12,   11,   11,   11, 0x08,
-      21,   11,   11,   11, 0x08,
-      31,   11,   11,   11, 0x08,
-      40,   11,   11,   11, 0x08,
-      50,   11,   11,   11, 0x08,
-      59,   11,   11,   11, 0x08,
+      25,   11,   11,   11, 0x08,
+      49,   11,   11,   11, 0x08,
+      61,   11,   11,   11, 0x08,
+      71,   11,   11,   11, 0x08,
+      81,   11,   11,   11, 0x08,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_MainWindow[] = {
-    "MainWindow\0\0newReg()\0recvReg()\0newLog()\0"
-    "recvLog()\0newEid()\0recvEid()\0"
+    "MainWindow\0\0onShowMain()\0"
+    "on_pushButton_clicked()\0newClient()\0"
+    "recvCli()\0recvEid()\0makePubES()\0"
 };
 
 void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -51,12 +52,12 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         Q_ASSERT(staticMetaObject.cast(_o));
         MainWindow *_t = static_cast<MainWindow *>(_o);
         switch (_id) {
-        case 0: _t->newReg(); break;
-        case 1: _t->recvReg(); break;
-        case 2: _t->newLog(); break;
-        case 3: _t->recvLog(); break;
-        case 4: _t->newEid(); break;
-        case 5: _t->recvEid(); break;
+        case 0: _t->onShowMain(); break;
+        case 1: _t->on_pushButton_clicked(); break;
+        case 2: _t->newClient(); break;
+        case 3: _t->recvCli(); break;
+        case 4: _t->recvEid(); break;
+        case 5: _t->makePubES(); break;
         default: ;
         }
     }

@@ -228,11 +228,20 @@ void MainWindow::sendCli()
         char succ[] = "88";
         QString succInfo;
         succInfo = QString(QLatin1String(succ));
-        if(logSocket->write(succInfo.toLatin1(), succInfo.length()))
+        if(logSocket->write(succInfo.toLatin1(), succInfo.length()) != succInfo.length())
         {
             qDebug()<<"[sendCli]: "<<"error";
         }
         //logSocket->write();
+    }else{
+        QString errInfo;
+        char errMsg[] = "98";
+        errInfo = QString(QLatin1String(errMsg));
+        if(logSocket->write(errInfo.toLatin1(), errInfo.length()) != errInfo.length())
+        {
+            qDebug()<<"[sendCli]: "<<"error";
+        }
+        qDebug()<<"[sendCli]: "<<errInfo.length();
     }
 }
 
@@ -550,7 +559,7 @@ void MainWindow::recvLog()
         makePKeyC();
         SendPubS();
 
-    }else if(logInfo1.length() == 80){
+    }else if(logInfo1.length() == 80 || logInfo1.length() == 81){
         len_cipher5 = 0;
         memset(cipher5, '\0', 256);
         len_cipher5 = logInfo1.length();
@@ -596,6 +605,18 @@ void MainWindow::gety1()
     hash(y1, logger->y1);
     qDebug()<<"[gety1]: "<<logger->y1;
     qDebug()<<"[gety1]: "<<logger->y0;
+
+    if(strcmp(logger->y0, logger->y1))
+    {
+        QString errInfo;
+        errInfo = QString(QLatin1String("98"));
+        if(logSocket->write(errInfo.toLatin1(), errInfo.length()) != errInfo.length())
+        {
+            qDebug()<<"[gety1]: "<<"error";
+        }
+        qDebug()<<"[gety1]: "<<errInfo.length();
+    }
+
 }
 
 void MainWindow::DecryptK1()
@@ -619,6 +640,26 @@ void MainWindow::DecryptK1()
     int i;
     int num1;
     num1 = len_cipher5 / 16 + 1;
+
+    char instead[2];
+    memset(instead, '\0', 2);
+    if(len_cipher5 == 81)
+    {
+        memcpy(instead, cipher5 + 80, 1);
+    }
+
+    int cnt = 0;
+    for(int i = 0; i < (num1) * 16; i++)
+    {
+        if(cipher5[i] == instead[0])
+        {
+            cipher5[i] = 0;
+            printf("%d, ", i);
+            cnt++;
+        }
+    }
+
+    printf("\n%d\n", cnt);
 
     for (i = 0; i < num1; i++) {
              memset((char *)InBuff, '\0', 16);

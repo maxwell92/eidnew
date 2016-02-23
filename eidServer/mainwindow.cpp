@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     someone = new people();
 
-
+    memset(ack, '\0', 2);
 }
 
 MainWindow::~MainWindow()
@@ -345,6 +345,10 @@ void MainWindow::fillSomeone(char eidNumber[])
         qDebug()<<"[fillSomeone]: "<<someone->address;
         qDebug()<<"[fillSomeone]: "<<someone->city;
         qDebug()<<"[fillSomeone]: "<<someone->idNumber;
+
+        ack[0] = 'y';
+    }else{
+        ack[0] = 'n';
     }
 }
 
@@ -407,8 +411,8 @@ void MainWindow::Enpack()
     memset(code, '\0', 3);
     memcpy(code, "03", 2);
 
-    memset(ack, '\0', 2);
-    ack[0] = 'y';
+//    memset(ack, '\0', 2);
+//    ack[0] = 'y';
 
     len_msg4 = 2 + 1 + 32;
     memset(msg4, '\0', 256);

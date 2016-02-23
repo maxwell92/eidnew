@@ -217,7 +217,9 @@ void logDialog::recvSP()
         {
             QMessageBox::about(this, "Attention", "Username Not Exists!");
         }
-    } else if(!strcmp(code, "88")) //succ
+    } else if(!strcmp(code, "98")){
+        QMessageBox::about(this, "Attention", "Log Error!");
+    }else if(!strcmp(code, "88")) //succ
     {
         emit(showMain());
         this->hide();
@@ -402,6 +404,51 @@ void logDialog::EncryptK1(char code[])
         memcpy(cipher3 + 16 * i, (char *)OutBuff, 16);
     }
 
+    int cnt = 0;
+    char instead[2];
+    memset(instead, '\0', 2);
+
+    for(int i = 0; i < num1 * 16; i++)
+    {
+        printf("[%d], ", cipher3[i]);
+    }
+    printf("\n");
+
+    int Count[256] = {0};
+    for(int i = 0; i < num1 * 16; i++)
+    {
+        Count[cipher3[i] + 128]++;
+    }
+
+    for(int i = 0; i < 256; i++)
+    {
+        if(Count[i] == 0)
+        {
+            instead[0] = i - 128;
+            printf("\ninstead: %d\n", instead[0]);
+            break;
+        }
+    }
+
+    for(int i = 0; i < num1 * 16; i++)
+    {
+
+        if(cipher3[i] == 0)
+        {
+            cnt++;
+            cipher3[i] = instead[0];
+            printf("%d, ", i);
+        }
+//            printf("{%d}, ", cipher1[i]);
+    }
+    printf("\n%d\n", cnt);
+
+    qDebug()<<"[EncryptK1]: "<<cnt;
+    qDebug()<<"[EncryptK1]: "<<strlen(cipher3);
+    if (cnt != 0)
+    {
+        memcpy(cipher3 + num1 * 16, instead, 1);
+    }
 
 }
 

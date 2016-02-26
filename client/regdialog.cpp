@@ -373,6 +373,7 @@ void regDialog::Depack()
     char code[3];
     memset(code, '\0', 3);
     memcpy(code, msg2, 2);
+    qDebug()<<"[Depack]: "<<strlen(msg2);
     qDebug()<<"[Depack]: "<<code;
     int len_name;
     len_name = len_msg2 - 2 - 32 - 8 - 19;

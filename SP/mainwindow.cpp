@@ -13,6 +13,7 @@
 #include "QtSql/QSqlQuery"
 #include "openssl/rsa.h"
 #include "openssl/md5.h"
+#include "QTableWidgetItem"
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -308,6 +309,41 @@ void MainWindow::DecryptK0()
     memset(msg1, '\0', 256);
     memcpy(msg1, plain, len_plain);
     qDebug()<<"[DecryptK0]: "<<msg1;
+
+    int totalRow = ui->tableWidget->rowCount() + 1;
+
+    QTableWidgetItem *Time = new QTableWidgetItem();
+    QTableWidgetItem *Sender = new QTableWidgetItem();
+    QTableWidgetItem *Receiver = new QTableWidgetItem();
+    QTableWidgetItem *Content = new QTableWidgetItem();
+
+    QString qtime, qsender, qreceiver, qcontent;
+
+    QDate date;
+    QTime time;
+    QDateTime dt;
+
+    dt.setDate(date.currentDate());
+    dt.setTime(time.currentTime());
+    qtime = dt.toString("yyyy:MM:dd:hh:mm:ss");
+    Time->setText(qtime);
+
+    char csender[] = "client";
+    qsender = QString(QLatin1String(csender));
+    Sender->setText(qsender);
+
+    char creceiver[] = "SP";
+    qreceiver = QString(QLatin1String(creceiver));
+    Receiver->setText(qreceiver);
+
+    qcontent = QString(QLatin1String(msg1));
+    Content->setText(qcontent);
+
+    ui->tableWidget->setItem(totalRow, 0, Time);
+    ui->tableWidget->setItem(totalRow, 1, Sender);
+    ui->tableWidget->setItem(totalRow, 2, Receiver);
+    ui->tableWidget->setItem(totalRow, 3, Content);
+
 }
 
 void MainWindow::DepackReg()
@@ -514,6 +550,42 @@ void MainWindow::Enpack(char code[])
 
         qDebug()<<"[Enpack]: "<<msg2;
         qDebug()<<"[Enpack]: "<<len_msg2;
+
+        int totalRow = ui->tableWidget->rowCount() + 1;
+
+        QTableWidgetItem *Time = new QTableWidgetItem();
+        QTableWidgetItem *Sender = new QTableWidgetItem();
+        QTableWidgetItem *Receiver = new QTableWidgetItem();
+        QTableWidgetItem *Content = new QTableWidgetItem();
+
+        QString qtime, qsender, qreceiver, qcontent;
+
+        QDate date;
+        QTime time;
+        QDateTime dt;
+
+        dt.setDate(date.currentDate());
+        dt.setTime(time.currentTime());
+        qtime = dt.toString("yyyy:MM:dd:hh:mm:ss");
+        Time->setText(qtime);
+
+        char csender[] = "SP";
+        qsender = QString(QLatin1String(csender));
+        Sender->setText(qsender);
+
+        char creceiver[] = "client";
+        qreceiver = QString(QLatin1String(creceiver));
+        Receiver->setText(qreceiver);
+
+        qcontent = QString(QLatin1String(msg2));
+        Content->setText(qcontent);
+
+        ui->tableWidget->setItem(totalRow, 0, Time);
+        ui->tableWidget->setItem(totalRow, 1, Sender);
+        ui->tableWidget->setItem(totalRow, 2, Receiver);
+        ui->tableWidget->setItem(totalRow, 3, Content);
+
+
     }
 }
 

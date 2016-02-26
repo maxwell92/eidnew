@@ -120,6 +120,52 @@ void regDialog::EncryptK0()
         memcpy(cipher1 + 16 * i, (char *)OutBuff, 16);
     }
 
+    int cnt = 0;
+    char instead[2];
+    memset(instead, '\0', 2);
+
+    for(int i = 0; i < num1 * 16; i++)
+    {
+        printf("[%d], ", cipher1[i]);
+    }
+    printf("\n");
+
+    int Count[256] = {0};
+    for(int i = 0; i < num1 * 16; i++)
+    {
+        Count[cipher1[i] + 128]++;
+    }
+
+    for(int i = 0; i < 256; i++)
+    {
+        if(Count[i] == 0)
+        {
+            instead[0] = i - 128;
+            printf("\ninstead: %d\n", instead[0]);
+            break;
+        }
+    }
+
+    for(int i = 0; i < num1 * 16; i++)
+    {
+
+        if(cipher1[i] == 0)
+        {
+            cnt++;
+            cipher1[i] = instead[0];
+            printf("%d, ", i);
+        }
+//            printf("{%d}, ", cipher1[i]);
+    }
+    printf("\n%d\n", cnt);
+
+    qDebug()<<"[EncryptK0]: "<<cnt;
+    qDebug()<<"[EncryptK0]: "<<strlen(cipher1);
+    if (cnt != 0)
+    {
+        memcpy(cipher1 + num1 * 16, instead, 1);
+    }
+
 }
 
 void regDialog::Enpack(char code[])
@@ -257,6 +303,52 @@ void regDialog::Encrypt1K0()
         memcpy(cipher3 + 16 * i, (char *)OutBuff, 16);
     }
 
+    int cnt = 0;
+    char instead[2];
+    memset(instead, '\0', 2);
+
+    for(int i = 0; i < num1 * 16; i++)
+    {
+        printf("[%d], ", cipher3[i]);
+    }
+    printf("\n");
+
+    int Count[256] = {0};
+    for(int i = 0; i < num1 * 16; i++)
+    {
+        Count[cipher3[i] + 128]++;
+    }
+
+    for(int i = 0; i < 256; i++)
+    {
+        if(Count[i] == 0)
+        {
+            instead[0] = i - 128;
+            printf("\ninstead: %d\n", instead[0]);
+            break;
+        }
+    }
+
+    for(int i = 0; i < num1 * 16; i++)
+    {
+
+        if(cipher3[i] == 0)
+        {
+            cnt++;
+            cipher3[i] = instead[0];
+            printf("%d, ", i);
+        }
+//            printf("{%d}, ", cipher1[i]);
+    }
+    printf("\n%d\n", cnt);
+
+    qDebug()<<"[Encrypt1K0]: "<<cnt;
+    qDebug()<<"[Encrypt1K0]: "<<strlen(cipher3);
+    if (cnt != 0)
+    {
+        memcpy(cipher3 + num1 * 16, instead, 1);
+    }
+
 }
 
 void regDialog::caly0()
@@ -344,6 +436,34 @@ void regDialog::DecryptK0()
     int i;
     int num1;
     num1 = len_cipher2 / 16 + 1;
+
+    char instead[2];
+    memset(instead, '\0', 2);
+    if(len_cipher2 % 16 == 1)
+    {
+        memcpy(instead, cipher2 + (num1 - 1) * 16, 1);
+    }
+
+    int cnt = 0;
+    for(int i = 0; i < (num1) * 16; i++)
+    {
+        if(cipher2[i] == instead[0])
+        {
+            cipher2[i] = 0;
+            printf("%d, ", i);
+            cnt++;
+        }
+    }
+
+    printf("\n%d\n", cnt);
+
+
+
+
+
+
+
+
 
     for (i = 0; i < num1; i++) {
              memset((char *)InBuff, '\0', 16);

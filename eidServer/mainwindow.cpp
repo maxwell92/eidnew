@@ -7,6 +7,10 @@
 #include <openssl/md5.h>
 #include <QSqlDatabase>
 #include "QtSql/QSqlQuery"
+#include "QDateTime"
+#include "QTime"
+#include "QDate"
+#include "QTableWidgetItem"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -45,6 +49,8 @@ MainWindow::MainWindow(QWidget *parent) :
     someone = new people();
 
     memset(ack, '\0', 2);
+
+    rowCount = 0;
 }
 
 MainWindow::~MainWindow()
@@ -237,6 +243,41 @@ void MainWindow::DecryptPrieid()
     }
     qDebug()<<"[DecryptPrieid]: msg4: "<<msg2;
     qDebug()<<"[DecryptPrieid]: "<<strlen(msg2);
+
+
+
+    QTableWidgetItem *Time = new QTableWidgetItem();
+    QTableWidgetItem *Sender = new QTableWidgetItem();
+    QTableWidgetItem *Receiver = new QTableWidgetItem();
+    QTableWidgetItem *Content = new QTableWidgetItem();
+
+    QString qtime, qsender, qreceiver, qcontent;
+
+    QDate date;
+    QTime time;
+    QDateTime dt;
+
+    dt.setDate(date.currentDate());
+    dt.setTime(time.currentTime());
+    qtime = dt.toString("yyyy:MM:dd:hh:mm:ss");
+    Time->setText(qtime);
+
+    char csender[] = "eIDClient";
+    qsender = QString(QLatin1String(csender));
+    Sender->setText(qsender);
+
+    char creceiver[] = "eIDServer";
+    qreceiver = QString(QLatin1String(creceiver));
+    Receiver->setText(qreceiver);
+
+    qcontent = QString(QLatin1String(msg2));
+    Content->setText(qcontent);
+
+    ui->tableWidget->setItem(rowCount, 0, Time);
+    ui->tableWidget->setItem(rowCount, 1, Sender);
+    ui->tableWidget->setItem(rowCount, 2, Receiver);
+    ui->tableWidget->setItem(rowCount, 3, Content);
+    rowCount++;
 }
 
 void MainWindow::Depack()
@@ -422,6 +463,40 @@ void MainWindow::Enpack()
 
     qDebug()<<"[Enpack]: "<<msg4;
     qDebug()<<"[Enpack]: "<<len_msg4;
+
+
+    QTableWidgetItem *Time = new QTableWidgetItem();
+    QTableWidgetItem *Sender = new QTableWidgetItem();
+    QTableWidgetItem *Receiver = new QTableWidgetItem();
+    QTableWidgetItem *Content = new QTableWidgetItem();
+
+    QString qtime, qsender, qreceiver, qcontent;
+
+    QDate date;
+    QTime time;
+    QDateTime dt;
+
+    dt.setDate(date.currentDate());
+    dt.setTime(time.currentTime());
+    qtime = dt.toString("yyyy:MM:dd:hh:mm:ss");
+    Time->setText(qtime);
+
+    char csender[] = "eIDServer";
+    qsender = QString(QLatin1String(csender));
+    Sender->setText(qsender);
+
+    char creceiver[] = "SP";
+    qreceiver = QString(QLatin1String(creceiver));
+    Receiver->setText(qreceiver);
+
+    qcontent = QString(QLatin1String(msg4));
+    Content->setText(qcontent);
+
+    ui->tableWidget->setItem(rowCount, 0, Time);
+    ui->tableWidget->setItem(rowCount, 1, Sender);
+    ui->tableWidget->setItem(rowCount, 2, Receiver);
+    ui->tableWidget->setItem(rowCount, 3, Content);
+    rowCount++;
 
 
 }

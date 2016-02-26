@@ -62,6 +62,8 @@ public:
     char hn2[33];
     char ack[2];
 
+    int rowCount;
+
 private slots:
     void getRsa();
     void newClient();

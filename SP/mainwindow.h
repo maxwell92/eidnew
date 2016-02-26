@@ -139,6 +139,8 @@ private:
     char msg9[256];
     int len_msg9;
 
+    int rowCount;
+
 private slots:
     void newReg();
     void recvReg();

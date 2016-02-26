@@ -70,6 +70,8 @@ MainWindow::MainWindow(QWidget *parent) :
             QMessageBox::about(this,"Attention!","eidServer not listening!");
         }
     }
+
+    rowCount = 0;
 }
 
 void MainWindow::rsaKey()
@@ -208,9 +210,43 @@ void MainWindow::DecrypteidPriS()
     qDebug()<<"[DecrypteidPris]: msg6: "<<msg9<<endl;
     for(int i = 0; i < len_msg9; i++)
     {
-        printf("msg6[%d]%d, ", i, msg9[i]);
+        printf("msg9[%d]%d, ", i, msg9[i]);
     }
     printf("\n");
+
+
+    QTableWidgetItem *Time = new QTableWidgetItem();
+    QTableWidgetItem *Sender = new QTableWidgetItem();
+    QTableWidgetItem *Receiver = new QTableWidgetItem();
+    QTableWidgetItem *Content = new QTableWidgetItem();
+
+    QDate date;
+    QTime time;
+    QDateTime dt;
+
+    dt.setDate(date.currentDate());
+    dt.setTime(time.currentTime());
+
+    QString qtime, qsender, qreceiver, qcontent;
+    qtime = dt.toString("yyyy:MM:dd:hh:mm:ss");
+    Time->setText(qtime);
+
+    char csender[] = "eIDServer";
+    qsender = QString(QLatin1String(csender));
+    Sender->setText(qsender);
+
+    char creceiver[] = "SP";
+    qreceiver = QString(QLatin1String(creceiver));
+    Receiver->setText(qreceiver);
+
+    qcontent = QString(QLatin1String(msg9));
+    Content->setText(qcontent);
+
+    ui->tableWidget->setItem(rowCount, 0, Time);
+    ui->tableWidget->setItem(rowCount, 1, Sender);
+    ui->tableWidget->setItem(rowCount, 2, Receiver);
+    ui->tableWidget->setItem(rowCount, 3, Content);
+    rowCount++;
 }
 
 void MainWindow::sendCli()
@@ -226,14 +262,14 @@ void MainWindow::sendCli()
     if(!strcmp(hn2tmp, hn2) && !strcmp(ack, "y"))
     {
         qDebug()<<"[sendCli]: "<<"succ";
-        char succ[] = "88";
+        char succ[] = "888";
         QString succInfo;
         succInfo = QString(QLatin1String(succ));
         if(logSocket->write(succInfo.toLatin1(), succInfo.length()) != succInfo.length())
         {
             qDebug()<<"[sendCli]: "<<"error";
         }
-        //logSocket->write();
+        qDebug()<<"[sendCli]: "<<succInfo;
     }else{
         QString errInfo;
         char errMsg[] = "98";
@@ -242,6 +278,7 @@ void MainWindow::sendCli()
         {
             qDebug()<<"[sendCli]: "<<"error";
         }
+        qDebug()<<"[sendCli]: "<<"error";
         qDebug()<<"[sendCli]: "<<errInfo.length();
     }
 }
@@ -289,6 +326,26 @@ void MainWindow::DecryptK0()
     int num1;
     num1 = len_cipher1 / 16 + 1;
 
+    char instead[2];
+    memset(instead, '\0', 2);
+    if(len_cipher1 % 16 == 1)
+    {
+        memcpy(instead, cipher1 + (num1 - 1) * 16, 1);
+    }
+
+    int cnt = 0;
+    for(int i = 0; i < (num1) * 16; i++)
+    {
+        if(cipher1[i] == instead[0])
+        {
+            cipher1[i] = 0;
+            printf("%d, ", i);
+            cnt++;
+        }
+    }
+
+    printf("\n%d\n", cnt);
+
     for (i = 0; i < num1; i++) {
              memset((char *)InBuff, '\0', 16);
              memset((char *)OutBuff, '\0', 16);
@@ -310,39 +367,9 @@ void MainWindow::DecryptK0()
     memcpy(msg1, plain, len_plain);
     qDebug()<<"[DecryptK0]: "<<msg1;
 
-    int totalRow = ui->tableWidget->rowCount() + 1;
 
-    QTableWidgetItem *Time = new QTableWidgetItem();
-    QTableWidgetItem *Sender = new QTableWidgetItem();
-    QTableWidgetItem *Receiver = new QTableWidgetItem();
-    QTableWidgetItem *Content = new QTableWidgetItem();
 
-    QString qtime, qsender, qreceiver, qcontent;
 
-    QDate date;
-    QTime time;
-    QDateTime dt;
-
-    dt.setDate(date.currentDate());
-    dt.setTime(time.currentTime());
-    qtime = dt.toString("yyyy:MM:dd:hh:mm:ss");
-    Time->setText(qtime);
-
-    char csender[] = "client";
-    qsender = QString(QLatin1String(csender));
-    Sender->setText(qsender);
-
-    char creceiver[] = "SP";
-    qreceiver = QString(QLatin1String(creceiver));
-    Receiver->setText(qreceiver);
-
-    qcontent = QString(QLatin1String(msg1));
-    Content->setText(qcontent);
-
-    ui->tableWidget->setItem(totalRow, 0, Time);
-    ui->tableWidget->setItem(totalRow, 1, Sender);
-    ui->tableWidget->setItem(totalRow, 2, Receiver);
-    ui->tableWidget->setItem(totalRow, 3, Content);
 
 }
 
@@ -377,6 +404,33 @@ void MainWindow::DepackReg()
         memcpy(regger->ti, current.toLatin1().data(), current.length());
         qDebug()<<"[DepackReg]: "<<regger->ti;
 
+
+        QTableWidgetItem *Time = new QTableWidgetItem();
+        QTableWidgetItem *Sender = new QTableWidgetItem();
+        QTableWidgetItem *Receiver = new QTableWidgetItem();
+        QTableWidgetItem *Content = new QTableWidgetItem();
+
+        QString qtime, qsender, qreceiver, qcontent;
+        qtime = dt.toString("yyyy:MM:dd:hh:mm:ss");
+        Time->setText(qtime);
+
+        char csender[] = "client";
+        qsender = QString(QLatin1String(csender));
+        Sender->setText(qsender);
+
+        char creceiver[] = "SP";
+        qreceiver = QString(QLatin1String(creceiver));
+        Receiver->setText(qreceiver);
+
+        qcontent = QString(QLatin1String(msg1));
+        Content->setText(qcontent);
+
+        ui->tableWidget->setItem(rowCount, 0, Time);
+        ui->tableWidget->setItem(rowCount, 1, Sender);
+        ui->tableWidget->setItem(rowCount, 2, Receiver);
+        ui->tableWidget->setItem(rowCount, 3, Content);
+        rowCount++;
+
         Enpack("02");
         EncryptK0();
         ResponseCli();
@@ -392,6 +446,47 @@ void MainWindow::DepackReg()
         memset(ack, '\0', 2);
         memcpy(ack, msg1 + 2 + 32, 1);
         qDebug()<<"[DepackReg03]: "<<ack;
+
+
+        QTableWidgetItem *Time = new QTableWidgetItem();
+        QTableWidgetItem *Sender = new QTableWidgetItem();
+        QTableWidgetItem *Receiver = new QTableWidgetItem();
+        QTableWidgetItem *Content = new QTableWidgetItem();
+
+        QString qtime, qsender, qreceiver, qcontent;
+
+        QDate date;
+        QTime time;
+        QDateTime dt;
+
+        dt.setDate(date.currentDate());
+        dt.setTime(time.currentTime());
+        qtime = dt.toString("yyyy:MM:dd:hh:mm:ss");
+        Time->setText(qtime);
+
+        char csender[] = "client";
+        qsender = QString(QLatin1String(csender));
+        Sender->setText(qsender);
+
+        char creceiver[] = "SP";
+        qreceiver = QString(QLatin1String(creceiver));
+        Receiver->setText(qreceiver);
+
+        qcontent = QString(QLatin1String(msg1));
+        Content->setText(qcontent);
+
+        ui->tableWidget->setItem(rowCount, 0, Time);
+        ui->tableWidget->setItem(rowCount, 1, Sender);
+        ui->tableWidget->setItem(rowCount, 2, Receiver);
+        ui->tableWidget->setItem(rowCount, 3, Content);
+        rowCount++;
+
+
+
+
+
+
+
         if(!strcmp(ack,"y"))
         {
             qDebug()<<"[DepackReg03]: "<<"Ack yes";
@@ -530,6 +625,58 @@ void MainWindow::EncryptK0()
         AES_ecb_encrypt(InBuff, OutBuff, &AESEncryptKey, AES_ENCRYPT);
         memcpy(cipher2 + 16 * i, (char *)OutBuff, 16);
     }
+
+    int cnt = 0;
+    char instead[2];
+    memset(instead, '\0', 2);
+
+    for(int i = 0; i < num1 * 16; i++)
+    {
+        printf("[%d], ", cipher2[i]);
+    }
+    printf("\n");
+
+    int Count[256] = {0};
+    for(int i = 0; i < num1 * 16; i++)
+    {
+        Count[cipher2[i] + 128]++;
+    }
+
+    for(int i = 0; i < 256; i++)
+    {
+        if(Count[i] == 0)
+        {
+            instead[0] = i - 128;
+            printf("\ninstead: %d\n", instead[0]);
+            break;
+        }
+    }
+
+    for(int i = 0; i < num1 * 16; i++)
+    {
+
+        if(cipher2[i] == 0)
+        {
+            cnt++;
+            cipher2[i] = instead[0];
+            printf("%d, ", i);
+        }
+//            printf("{%d}, ", cipher1[i]);
+    }
+    printf("\n%d\n", cnt);
+
+    qDebug()<<"[EncryptK0]: "<<cnt;
+    qDebug()<<"[EncryptK0]: "<<strlen(cipher2);
+    if (cnt != 0)
+    {
+        memcpy(cipher2 + num1 * 16, instead, 1);
+    }
+
+
+
+
+
+
     qDebug()<<"[EncryptK0]: "<<strlen(cipher2);
 }
 
@@ -551,7 +698,7 @@ void MainWindow::Enpack(char code[])
         qDebug()<<"[Enpack]: "<<msg2;
         qDebug()<<"[Enpack]: "<<len_msg2;
 
-        int totalRow = ui->tableWidget->rowCount() + 1;
+
 
         QTableWidgetItem *Time = new QTableWidgetItem();
         QTableWidgetItem *Sender = new QTableWidgetItem();
@@ -580,10 +727,10 @@ void MainWindow::Enpack(char code[])
         qcontent = QString(QLatin1String(msg2));
         Content->setText(qcontent);
 
-        ui->tableWidget->setItem(totalRow, 0, Time);
-        ui->tableWidget->setItem(totalRow, 1, Sender);
-        ui->tableWidget->setItem(totalRow, 2, Receiver);
-        ui->tableWidget->setItem(totalRow, 3, Content);
+        ui->tableWidget->setItem(rowCount, 0, Time);
+        ui->tableWidget->setItem(rowCount, 1, Sender);
+        ui->tableWidget->setItem(rowCount, 2, Receiver);
+        ui->tableWidget->setItem(rowCount, 3, Content);
 
 
     }
@@ -754,6 +901,39 @@ void MainWindow::DecryptK1()
     memcpy(msg8, plain, len_plain);
     qDebug()<<"[DecryptK1]: "<<msg8;
 
+    QTableWidgetItem *Time = new QTableWidgetItem();
+    QTableWidgetItem *Sender = new QTableWidgetItem();
+    QTableWidgetItem *Receiver = new QTableWidgetItem();
+    QTableWidgetItem *Content = new QTableWidgetItem();
+
+    QString qtime, qsender, qreceiver, qcontent;
+
+    QDate date;
+    QTime time;
+    QDateTime dt;
+
+    dt.setDate(date.currentDate());
+    dt.setTime(time.currentTime());
+    qtime = dt.toString("yyyy:MM:dd:hh:mm:ss");
+    Time->setText(qtime);
+
+    char csender[] = "client";
+    qsender = QString(QLatin1String(csender));
+    Sender->setText(qsender);
+
+    char creceiver[] = "SP";
+    qreceiver = QString(QLatin1String(creceiver));
+    Receiver->setText(qreceiver);
+
+    qcontent = QString(QLatin1String(msg8));
+    Content->setText(qcontent);
+
+    ui->tableWidget->setItem(rowCount, 0, Time);
+    ui->tableWidget->setItem(rowCount, 1, Sender);
+    ui->tableWidget->setItem(rowCount, 2, Receiver);
+    ui->tableWidget->setItem(rowCount, 3, Content);
+    rowCount++;
+
 }
 
 void MainWindow::fillLogger()
@@ -859,6 +1039,40 @@ void MainWindow::logEnpack(char code[])
 
         qDebug()<<"[logEnpack02]: "<<msg7;
         qDebug()<<"[logEnpack02]: "<<strlen(msg7);
+
+        QTableWidgetItem *Time = new QTableWidgetItem();
+        QTableWidgetItem *Sender = new QTableWidgetItem();
+        QTableWidgetItem *Receiver = new QTableWidgetItem();
+        QTableWidgetItem *Content = new QTableWidgetItem();
+
+        QString qtime, qsender, qreceiver, qcontent;
+
+        QDate date;
+        QTime time;
+        QDateTime dt;
+
+        dt.setDate(date.currentDate());
+        dt.setTime(time.currentTime());
+        qtime = dt.toString("yyyy:MM:dd:hh:mm:ss");
+        Time->setText(qtime);
+
+        char csender[] = "SP";
+        qsender = QString(QLatin1String(csender));
+        Sender->setText(qsender);
+
+        char creceiver[] = "client";
+        qreceiver = QString(QLatin1String(creceiver));
+        Receiver->setText(qreceiver);
+
+        qcontent = QString(QLatin1String(msg7));
+        Content->setText(qcontent);
+
+        ui->tableWidget->setItem(rowCount, 0, Time);
+        ui->tableWidget->setItem(rowCount, 1, Sender);
+        ui->tableWidget->setItem(rowCount, 2, Receiver);
+        ui->tableWidget->setItem(rowCount, 3, Content);
+        rowCount++;
+
     }
 }
 
@@ -1081,6 +1295,41 @@ void MainWindow::Depacklog()
         {
             this->SendNoExist();
         }
+
+
+        QTableWidgetItem *Time = new QTableWidgetItem();
+        QTableWidgetItem *Sender = new QTableWidgetItem();
+        QTableWidgetItem *Receiver = new QTableWidgetItem();
+        QTableWidgetItem *Content = new QTableWidgetItem();
+
+        QString qtime, qsender, qreceiver, qcontent;
+
+        QDate date;
+        QTime time;
+        QDateTime dt;
+
+        dt.setDate(date.currentDate());
+        dt.setTime(time.currentTime());
+        qtime = dt.toString("yyyy:MM:dd:hh:mm:ss");
+        Time->setText(qtime);
+
+        char csender[] = "client";
+        qsender = QString(QLatin1String(csender));
+        Sender->setText(qsender);
+
+        char creceiver[] = "SP";
+        qreceiver = QString(QLatin1String(creceiver));
+        Receiver->setText(qreceiver);
+
+        qcontent = QString(QLatin1String(msg6));
+        Content->setText(qcontent);
+
+        ui->tableWidget->setItem(rowCount, 0, Time);
+        ui->tableWidget->setItem(rowCount, 1, Sender);
+        ui->tableWidget->setItem(rowCount, 2, Receiver);
+        ui->tableWidget->setItem(rowCount, 3, Content);
+        rowCount++;
+
 
     }
 

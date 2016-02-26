@@ -179,7 +179,7 @@ void logDialog::recvSP()
     memcpy(msg2, b.data(), len_msg2);
 //    msg2 = (char *)malloc(len_msg2 * sizeof(char));
 //  strcpy(msg2, b.data());
-//    qDebug()<<"[recvSP]: "<<msg2;
+    qDebug()<<"[recvSP]: "<<msg2;
 
     char code[3];
     memset(code, '\0', 3);
@@ -217,9 +217,9 @@ void logDialog::recvSP()
         {
             QMessageBox::about(this, "Attention", "Username Not Exists!");
         }
-    } else if(!strcmp(code, "98")){
+    }else if(!strcmp(code, "98")){
         QMessageBox::about(this, "Attention", "Log Error!");
-    }else if(!strcmp(code, "88")) //succ
+    }else if(!strcmp(code, "888")) //succ
     {
         emit(showMain());
         this->hide();

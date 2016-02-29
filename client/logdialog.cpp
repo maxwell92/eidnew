@@ -219,7 +219,7 @@ void logDialog::recvSP()
         }
     }else if(!strcmp(code, "98")){
         QMessageBox::about(this, "Attention", "Log Error!");
-    }else if(!strcmp(code, "888")) //succ
+    }else if(!strcmp(code, "88")) //succ
     {
         emit(showMain());
         this->hide();
@@ -237,6 +237,7 @@ void logDialog::recvSP()
         connecteIDclient();
         sendeID();
     }
+//    logSocket->close();
 }
 
 void logDialog::connecteIDclient()

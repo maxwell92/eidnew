@@ -262,7 +262,7 @@ void MainWindow::sendCli()
     if(!strcmp(hn2tmp, hn2) && !strcmp(ack, "y"))
     {
         qDebug()<<"[sendCli]: "<<"succ";
-        char succ[] = "888";
+        char succ[] = "88";
         QString succInfo;
         succInfo = QString(QLatin1String(succ));
         if(logSocket->write(succInfo.toLatin1(), succInfo.length()) != succInfo.length())
@@ -833,6 +833,7 @@ void MainWindow::gety1()
         {
             qDebug()<<"[gety1]: "<<"error";
         }
+        qDebug()<<"[gety1]: "<<errInfo;
         qDebug()<<"[gety1]: "<<errInfo.length();
     }
 

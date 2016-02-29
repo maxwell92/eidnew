@@ -34,6 +34,7 @@ public:
     QPushButton *pushButton_3;
     QPushButton *pushButton_4;
     QPushButton *pushButton_5;
+    QLabel *label_2;
     QMenuBar *menuBar;
     QMenu *menuFie;
     QStatusBar *statusBar;
@@ -47,7 +48,7 @@ public:
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         label = new QLabel(centralWidget);
         label->setObjectName(QString::fromUtf8("label"));
-        label->setGeometry(QRect(180, 160, 201, 16));
+        label->setGeometry(QRect(180, 160, 161, 16));
         pushButton = new QPushButton(centralWidget);
         pushButton->setObjectName(QString::fromUtf8("pushButton"));
         pushButton->setGeometry(QRect(300, 10, 80, 26));
@@ -63,6 +64,9 @@ public:
         pushButton_5 = new QPushButton(centralWidget);
         pushButton_5->setObjectName(QString::fromUtf8("pushButton_5"));
         pushButton_5->setGeometry(QRect(20, 170, 80, 26));
+        label_2 = new QLabel(centralWidget);
+        label_2->setObjectName(QString::fromUtf8("label_2"));
+        label_2->setGeometry(QRect(280, 190, 58, 15));
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
@@ -90,6 +94,7 @@ public:
         pushButton_3->setText(QApplication::translate("MainWindow", "Mailbox", 0, QApplication::UnicodeUTF8));
         pushButton_4->setText(QApplication::translate("MainWindow", "Grades", 0, QApplication::UnicodeUTF8));
         pushButton_5->setText(QApplication::translate("MainWindow", "Rank", 0, QApplication::UnicodeUTF8));
+        label_2->setText(QString());
         menuFie->setTitle(QApplication::translate("MainWindow", "file", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 

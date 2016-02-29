@@ -26,7 +26,10 @@ void MainWindow::onShowReg()
 
 void MainWindow::onShowMain()
 {
+    char name[] = "maxwell";
+    ui->label_2->setText(QString(QLatin1String(name)));
     this->show();
+    qDebug()<<"[onShowMain]: "<<logger->username;
 }
 
 void MainWindow::onShowLog()

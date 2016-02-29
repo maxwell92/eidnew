@@ -731,7 +731,7 @@ void MainWindow::Enpack(char code[])
         ui->tableWidget->setItem(rowCount, 1, Sender);
         ui->tableWidget->setItem(rowCount, 2, Receiver);
         ui->tableWidget->setItem(rowCount, 3, Content);
-
+        rowCount++;
 
     }
 }
